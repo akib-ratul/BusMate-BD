@@ -5,7 +5,7 @@ import {
   Bus, Map, LogOut, Menu, X, User, 
   LayoutDashboard, ShieldAlert, Navigation, 
   Settings, Users, BarChart3, Bell, HelpCircle, 
-  MessageSquare, Briefcase
+  MessageSquare, Briefcase, Ticket, Star
 } from 'lucide-react';
 
 const MainLayout = () => {
@@ -23,8 +23,12 @@ const MainLayout = () => {
     { name: 'Dashboard', path: '/passenger/dashboard', icon: LayoutDashboard },
     { name: 'Routes', path: '/passenger/routes', icon: Navigation },
     { name: 'Live Map', path: '/passenger/map', icon: Map },
+    { name: 'My Tickets', path: '/passenger/ticket', icon: Ticket },
+    { name: 'Notifications', path: '/passenger/notifications', icon: Bell },
     { name: 'AI Assistant', path: '/passenger/ai-assistant', icon: MessageSquare },
     { name: 'My Trips', path: '/passenger/trips', icon: Bus },
+    { name: 'Report Crowd', path: '/passenger/crowd', icon: Users },
+    { name: 'Rate Us', path: '/passenger/rate', icon: Star },
     { name: 'Safety SOS', path: '/passenger/safety', icon: ShieldAlert },
     { name: 'Lost & Found', path: '/passenger/lost-found', icon: Briefcase },
   ];
