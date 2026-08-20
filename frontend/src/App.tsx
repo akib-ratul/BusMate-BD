@@ -23,6 +23,10 @@ import PassengerSafety from './pages/passenger/PassengerSafety';
 import PassengerLostFound from './pages/passenger/PassengerLostFound';
 import PassengerProfile from './pages/passenger/PassengerProfile';
 import PassengerFare from './pages/passenger/PassengerFare';
+import PassengerCrowd from './pages/passenger/PassengerCrowd';
+import PassengerRating from './pages/passenger/PassengerRating';
+import PassengerNotifications from './pages/passenger/PassengerNotifications';
+import PassengerTicket from './pages/passenger/PassengerTicket';
 
 // Driver Pages
 import DriverDashboard from './pages/driver/DriverDashboard';
@@ -78,6 +82,10 @@ function App() {
                 <Route path="/passenger/lost-found" element={<PassengerLostFound />} />
                 <Route path="/passenger/profile" element={<PassengerProfile />} />
                 <Route path="/passenger/fare" element={<PassengerFare />} />
+                <Route path="/passenger/crowd" element={<PassengerCrowd />} />
+                <Route path="/passenger/rate" element={<PassengerRating />} />
+                <Route path="/passenger/notifications" element={<PassengerNotifications />} />
+                <Route path="/passenger/ticket" element={<PassengerTicket />} />
               </Route>
             </Route>
 

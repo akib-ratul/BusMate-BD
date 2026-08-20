@@ -124,11 +124,17 @@ const PassengerDashboard = () => {
           <div className="card p-6">
             <h3 className="font-bold text-gray-900 mb-4">Quick Shortcuts</h3>
             <div className="space-y-3">
+              <Link to="/passenger/ticket" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200 text-gray-700">
+                <span className="font-medium">View E-Ticket</span>
+              </Link>
+              <Link to="/passenger/crowd" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200 text-gray-700">
+                <span className="font-medium">Report Bus Crowd</span>
+              </Link>
+              <Link to="/passenger/rate" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200 text-gray-700">
+                <span className="font-medium">Rate Bus & Driver</span>
+              </Link>
               <Link to="/passenger/lost-found" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200 text-gray-700">
                 <span className="font-medium">Report Lost Item</span>
-              </Link>
-              <Link to="/passenger/routes" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200 text-gray-700">
-                <span className="font-medium">Report Bus Crowd</span>
               </Link>
             </div>
           </div>
