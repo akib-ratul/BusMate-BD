@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, MapPin, Navigation, Bus, Clock, ShieldCheck, Map, Smartphone, MessageSquare } from 'lucide-react';
 
+const DHAKA_LOCATIONS = [
+  "Mirpur 10", "Mirpur 1", "Shewrapara", "Farmgate", "Karwan Bazar", 
+  "Shahbagh", "Motijheel", "Uttara", "Banani", "Gulshan 1", "Gulshan 2", 
+  "Mohammadpur", "Jatrabari", "Sayedabad", "Dhanmondi 27", "Bashundhara", "Airport Road"
+].sort();
+
 const Home = () => {
   const navigate = useNavigate();
   const [from, setFrom] = useState('');
@@ -37,23 +43,29 @@ const Home = () => {
             <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1 relative">
                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  placeholder="Where from? (e.g. Mirpur)"
+                <select
                   value={from}
                   onChange={(e) => setFrom(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-shadow outline-none text-gray-800 font-medium"
-                />
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-shadow outline-none text-gray-800 font-medium appearance-none"
+                >
+                  <option value="" disabled>Where from? (e.g. Mirpur)</option>
+                  {DHAKA_LOCATIONS.map(loc => (
+                    <option key={loc} value={loc}>{loc}</option>
+                  ))}
+                </select>
               </div>
               <div className="flex-1 relative">
                 <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  placeholder="Where to? (e.g. Farmgate)"
+                <select
                   value={to}
                   onChange={(e) => setTo(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-shadow outline-none text-gray-800 font-medium"
-                />
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-shadow outline-none text-gray-800 font-medium appearance-none"
+                >
+                  <option value="" disabled>Where to? (e.g. Gulshan)</option>
+                  {DHAKA_LOCATIONS.map(loc => (
+                    <option key={loc} value={loc} disabled={loc === from}>{loc}</option>
+                  ))}
+                </select>
               </div>
               <button 
                 type="submit"

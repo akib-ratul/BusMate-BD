@@ -4,6 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Search, Navigation, Clock, MapPin, Bus } from 'lucide-react';
 import api from '../../api';
 
+const DHAKA_LOCATIONS = [
+  "Mirpur 10", "Mirpur 1", "Shewrapara", "Farmgate", "Karwan Bazar", 
+  "Shahbagh", "Motijheel", "Uttara", "Banani", "Gulshan 1", "Gulshan 2", 
+  "Mohammadpur", "Jatrabari", "Sayedabad", "Dhanmondi 27", "Bashundhara", "Airport Road"
+].sort();
+
 const PassengerRoutes = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialFrom = searchParams.get('from') || '';
@@ -46,23 +52,29 @@ const PassengerRoutes = () => {
         <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              placeholder="From (e.g. Mirpur)"
+            <select
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="input pl-10 py-3"
-            />
+              className="input pl-10 py-3 appearance-none bg-white"
+            >
+              <option value="" disabled>From (e.g. Mirpur)</option>
+              {DHAKA_LOCATIONS.map(loc => (
+                <option key={loc} value={loc}>{loc}</option>
+              ))}
+            </select>
           </div>
           <div className="flex-1 relative">
             <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              placeholder="To (e.g. Gulshan)"
+            <select
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="input pl-10 py-3"
-            />
+              className="input pl-10 py-3 appearance-none bg-white"
+            >
+              <option value="" disabled>To (e.g. Gulshan)</option>
+              {DHAKA_LOCATIONS.map(loc => (
+                <option key={loc} value={loc} disabled={loc === from}>{loc}</option>
+              ))}
+            </select>
           </div>
           <button type="submit" className="btn btn-primary py-3 px-8">
             <Search className="h-5 w-5 mr-2" />
