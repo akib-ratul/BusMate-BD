@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Navigation, Clock, MapPin, Bus } from 'lucide-react';
 import api from '../../api';
@@ -12,6 +12,8 @@ const PassengerRoutes = () => {
   const [from, setFrom] = useState(initialFrom);
   const [to, setTo] = useState(initialTo);
   const [searchQuery, setSearchQuery] = useState({ from: initialFrom, to: initialTo });
+  const [expandedRoute, setExpandedRoute] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const { data: routes, isLoading } = useQuery({
     queryKey: ['routes', searchQuery],
@@ -117,14 +119,46 @@ const PassengerRoutes = () => {
                     </div>
                   </div>
                   <div className="flex-shrink-0 flex gap-2 w-full md:w-auto">
-                    <button className="btn btn-secondary flex-1 md:flex-none">
-                      View Stops
+                    <button 
+                      className="btn btn-secondary flex-1 md:flex-none"
+                      onClick={() => setExpandedRoute(expandedRoute === route.id ? null : route.id)}
+                    >
+                      {expandedRoute === route.id ? 'Hide Stops' : 'View Stops'}
                     </button>
-                    <button className="btn btn-accent flex-1 md:flex-none">
+                    <button 
+                      className="btn btn-accent flex-1 md:flex-none"
+                      onClick={() => navigate(`/passenger/map?routeId=${route.id}`)}
+                    >
                       Live Map
                     </button>
                   </div>
                 </div>
+                
+                {/* Expandable Stops Section */}
+                {expandedRoute === route.id && route.stops && route.stops.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-gray-100 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Route Stops</h4>
+                    <div className="relative border-l-2 border-primary/20 ml-3 md:ml-4 space-y-6">
+                      {route.stops
+                        .sort((a: any, b: any) => a.order - b.order)
+                        .map((stop: any, index: number, arr: any[]) => (
+                          <div key={stop.name} className="relative pl-6 md:pl-8">
+                            {/* Stop Dot */}
+                            <div className={`absolute -left-[9px] top-1 h-4 w-4 rounded-full border-4 border-white shadow-sm ${index === 0 ? 'bg-primary' : index === arr.length - 1 ? 'bg-accent' : 'bg-gray-300'}`}></div>
+                            
+                            <p className={`font-semibold ${index === 0 || index === arr.length - 1 ? 'text-gray-900' : 'text-gray-700'}`}>
+                              {stop.name}
+                            </p>
+                            {(stop.lat && stop.lng) && (
+                              <p className="text-xs text-gray-400 mt-1 font-mono">
+                                {stop.lat.toFixed(4)}, {stop.lng.toFixed(4)}
+                              </p>
+                            )}
+                          </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

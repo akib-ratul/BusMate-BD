@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { useSearchParams } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { Bus, Crosshair, Filter } from 'lucide-react';
@@ -33,8 +34,11 @@ const MapRecenter = ({ center }: { center: [number, number] }) => {
 };
 
 const PassengerMap = () => {
+  const [searchParams] = useSearchParams();
+  const initialRouteId = searchParams.get('routeId') || 'all';
+
   const [activeBuses, setActiveBuses] = useState<Record<string, any>>({});
-  const [selectedRouteId, setSelectedRouteId] = useState<string>('all');
+  const [selectedRouteId, setSelectedRouteId] = useState<string>(initialRouteId);
   const [mapCenter, setMapCenter] = useState<[number, number]>([23.7937, 90.4066]); // Default: Banani, Dhaka
 
   const { data: routes } = useQuery({
