@@ -122,59 +122,29 @@ export const chat = async (req: Request, res: Response) => {
 
   let response: string;
 
-  // Try AI API if configured
-  if (config.aiApiKey) {
-    try {
-      // Get relevant BusMate context
-      const routes = await prisma.route.findMany({
-        where: { isActive: true },
-        include: {
-          buses: {
-            where: { status: 'ACTIVE' },
-            include: { crowdReports: { orderBy: { reportedAt: 'desc' }, take: 1 } },
-          },
-        },
-        take: 10,
-      });
-
-      const context = routes.map(r => ({
-        name: r.name,
-        from: r.startPoint,
-        to: r.endPoint,
-        fare: r.baseFare,
-        duration: r.estimatedDuration,
-        activeBuses: r.buses.length,
-        crowd: r.buses[0]?.crowdReports[0]?.level || 'Unknown',
-      }));
-
-      const systemPrompt = `You are BusMate AI, a smart travel assistant for Dhaka buses. 
-Use ONLY the following real bus route data to answer questions. Do NOT invent routes.
-Current active routes: ${JSON.stringify(context)}
-Rules: Be helpful, concise. Use BDT for currency. Format with markdown. Always add a disclaimer that info is estimated.`;
-
-      const aiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + config.aiApiKey, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ role: 'user', parts: [{ text: message }] }],
-          generationConfig: { maxOutputTokens: 500, temperature: 0.3 },
-        }),
-      });
-
-      if (aiResponse.ok) {
-        const data = await aiResponse.json() as any;
-        response = data.candidates?.[0]?.content?.parts?.[0]?.text || await getRulesBasedResponse(message);
+  try {
+    // 1. First, try our internal BusMate knowledge base for exact route/fare/crowd info
+    const localResponse = await getRulesBasedResponse(message);
+    
+    // If the local response isn't the default fallback message, it means it found specific bus data
+    if (!localResponse.includes('I can help you find buses, check fares')) {
+      response = localResponse;
+    } else {
+      // 2. If it's a general question, use a FREE public chatbot API for a natural conversational experience
+      const encodedMsg = encodeURIComponent(message);
+      const apiRes = await fetch(`https://api.popcat.xyz/chatbot?msg=${encodedMsg}&owner=Busmate&botname=BusmateAI`);
+      
+      if (apiRes.ok) {
+        const data = await apiRes.json() as any;
+        response = data.response || localResponse;
       } else {
-        response = await getRulesBasedResponse(message);
+        response = localResponse;
       }
-    } catch {
-      response = await getRulesBasedResponse(message);
     }
-  } else {
-    // Fallback rule-based assistant
+  } catch (error) {
+    console.error('AI Error:', error);
     response = await getRulesBasedResponse(message);
   }
 
-  res.json({ success: true, data: { message, response, isAI: !!config.aiApiKey } });
+  res.json({ success: true, data: { message, response, isAI: true } });
 };
