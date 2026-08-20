@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Bus, Navigation, Map as MapIcon, ShieldAlert, History } from 'lucide-react';
+import { Bus, Navigation, Map as MapIcon, ShieldAlert, History, MessageSquare } from 'lucide-react';
 import api from '../../api';
 import { useQuery } from '@tanstack/react-query';
 
