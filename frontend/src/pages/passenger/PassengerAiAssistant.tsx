@@ -42,7 +42,7 @@ const PassengerAiAssistant = () => {
       const aiMsg: Message = { 
         id: (Date.now() + 1).toString(), 
         role: 'ai', 
-        content: res.data.data 
+        content: res.data.data.response 
       };
       setMessages(prev => [...prev, aiMsg]);
     } catch (error) {
