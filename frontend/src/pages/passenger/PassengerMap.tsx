@@ -22,6 +22,7 @@ const busIcon = new L.Icon({
   iconSize: [32, 32],
   iconAnchor: [16, 16],
   popupAnchor: [0, -16],
+  className: 'bus-marker-icon',
 });
 
 // Component to recenter map

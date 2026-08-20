@@ -33,3 +33,8 @@
     @apply bg-white rounded-lg shadow-card overflow-hidden;
   }
 }
+
+/* Smooth marker movement for live tracking (Uber style) */
+.bus-marker-icon {
+  transition: transform 2.5s linear !important;
+}

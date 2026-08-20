@@ -189,6 +189,30 @@ async function main() {
     data: { name: 'Bashundhara Shuttle', busNumber: 'DHA-06-2345', operatorId: operator2.id, capacity: 45, routeId: route6.id, status: 'MAINTENANCE' },
   });
 
+  // Generate 15 additional active buses for a lively map demo
+  const routesArr = [route1, route2, route3, route4, route5, route6];
+  for (let i = 1; i <= 15; i++) {
+    const route = routesArr[i % 6];
+    // Random lat between 23.72 and 23.85 (Dhaka)
+    const rLat = 23.72 + Math.random() * 0.13;
+    // Random lng between 90.36 and 90.42 (Dhaka)
+    const rLng = 90.36 + Math.random() * 0.06;
+    
+    await prisma.bus.create({
+      data: {
+        name: `City Transit ${i}`,
+        busNumber: `DHA-99-${String(i).padStart(4, '0')}`,
+        operatorId: i % 2 === 0 ? operator.id : operator2.id,
+        capacity: 40,
+        routeId: route.id,
+        status: 'ACTIVE',
+        currentLat: rLat,
+        currentLng: rLng,
+        lastUpdated: new Date(),
+      }
+    });
+  }
+
   // Now update drivers WITH busId (FK lives on Driver side in this schema)
   await prisma.driver.update({ where: { id: driver1.id }, data: { busId: bus1.id } });
   await prisma.driver.update({ where: { id: driver2.id }, data: { busId: bus2.id } });
