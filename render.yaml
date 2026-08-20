@@ -12,7 +12,7 @@ services:
     plan: free
     region: singapore
     buildCommand: cd backend && npm install --production=false && npm run build
-    releaseCommand: cd backend && node db-setup.js
+    releaseCommand: cd backend && npm run db:deploy
     startCommand: cd backend && npm run start
     envVars:
       - key: DATABASE_URL

@@ -11,7 +11,7 @@
     "migrate:dev": "prisma migrate dev",
     "generate": "prisma generate",
     "seed": "tsx prisma/seed.ts",
-    "db:setup": "prisma migrate deploy --skip-generate || prisma db push --accept-data-loss && prisma generate && tsx prisma/seed.ts",
+    "db:deploy": "prisma db push --accept-data-loss && prisma generate && tsx prisma/seed.ts",
     "test": "jest --passWithNoTests"
   },
   "prisma": {
