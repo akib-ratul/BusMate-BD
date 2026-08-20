@@ -91,7 +91,35 @@ const PassengerMap = () => {
       }));
     });
 
+    // FAKE LIVE MOVEMENT FOR DEMO
+    const movementInterval = setInterval(() => {
+      setActiveBuses((prev) => {
+        const next = { ...prev };
+        let hasChanges = false;
+        
+        Object.keys(next).forEach((busId) => {
+          const bus = next[busId];
+          if (bus && bus.currentLat && bus.currentLng) {
+            // Add a tiny random offset to simulate movement
+            const latOffset = (Math.random() - 0.5) * 0.0005;
+            const lngOffset = (Math.random() - 0.5) * 0.0005;
+            
+            next[busId] = {
+              ...bus,
+              currentLat: bus.currentLat + latOffset,
+              currentLng: bus.currentLng + lngOffset,
+              lastUpdated: new Date().toISOString()
+            };
+            hasChanges = true;
+          }
+        });
+        
+        return hasChanges ? next : prev;
+      });
+    }, 2500);
+
     return () => {
+      clearInterval(movementInterval);
       socket.off('bus:location');
       socket.off('connect');
       disconnectSocket();
