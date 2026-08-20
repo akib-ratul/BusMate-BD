@@ -381,11 +381,6 @@ async function main() {
   });
 
   console.log('✅ Seed complete!');
-  console.log('\n📋 Demo Credentials:');
-  console.log('  Admin:     admin@busmatebd.demo     / Demo@2024!');
-  console.log('  Operator:  operator@busmatebd.demo  / Demo@2024!');
-  console.log('  Driver:    driver@busmatebd.demo    / Demo@2024!');
-  console.log('  Passenger: passenger@busmatebd.demo / Demo@2024!');
 }
 
 main()
