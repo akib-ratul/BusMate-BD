@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../config/prisma';
 import { AppError } from '../middleware/errorHandler';
 
+
 export const getOperatorAnalytics = async (req: Request, res: Response) => {
   const op = await prisma.transportOperator.findUnique({ where: { userId: req.user!.userId } });
   if (!op) throw new AppError('Operator profile not found', 404);
@@ -140,10 +141,22 @@ export const getAdminAnalytics = async (req: Request, res: Response) => {
 };
 
 export const getSystemSettings = async (req: Request, res: Response) => {
-  const settings = await prisma.systemSetting.findMany();
-  const obj = Object.fromEntries(settings.map(s => [s.key, s.value]));
-  res.json({ success: true, data: obj });
+  const settings = await prisma.systemSetting.findMany({ orderBy: { key: 'asc' } });
+  res.json({ success: true, data: settings }); // returns array of {key, value}
 };
+
+export const updateSystemSetting = async (req: Request, res: Response) => {
+  const { key } = req.params;
+  const { value } = req.body;
+  if (value === undefined) throw new AppError('value is required', 400);
+  const setting = await prisma.systemSetting.upsert({
+    where: { key },
+    update: { value: String(value) },
+    create: { key, value: String(value) },
+  });
+  res.json({ success: true, data: setting });
+};
+
 
 export const updateSystemSettings = async (req: Request, res: Response) => {
   const { settings } = req.body;
@@ -165,7 +178,10 @@ export const updateSystemSettings = async (req: Request, res: Response) => {
 export const getTripsByUser = async (req: Request, res: Response) => {
   const userId = req.user!.userId;
   const passenger = await prisma.passenger.findUnique({ where: { userId } });
-  if (!passenger) throw new AppError('Passenger profile not found', 404);
+  // Non-passenger roles (driver/operator/admin) don't have trips — return empty
+  if (!passenger) {
+    return res.json({ success: true, data: [] });
+  }
 
   const trips = await prisma.trip.findMany({
     where: { passengerId: passenger.id },

@@ -36,6 +36,16 @@ export const createSos = async (req: Request, res: Response) => {
   res.status(201).json({ success: true, data: alert });
 };
 
+export const getMySos = async (req: Request, res: Response) => {
+  const userId = req.user!.userId;
+  const alerts = await prisma.sosAlert.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+  });
+  res.json({ success: true, data: alerts });
+};
+
 export const getSosAlerts = async (req: Request, res: Response) => {
   const { status, page = '1', limit = '20' } = req.query;
   const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
