@@ -132,12 +132,25 @@ export const chat = async (req: Request, res: Response) => {
     } else {
       // 2. If it's a general question, use a FREE public chatbot API for a natural conversational experience
       const encodedMsg = encodeURIComponent(message);
-      const apiRes = await fetch(`https://api.popcat.xyz/chatbot?msg=${encodedMsg}&owner=Busmate&botname=BusmateAI`);
       
-      if (apiRes.ok) {
-        const data = await apiRes.json() as any;
-        response = data.response || localResponse;
-      } else {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+      
+      try {
+        const apiRes = await fetch(`https://api.popcat.xyz/chatbot?msg=${encodedMsg}&owner=Busmate&botname=BusmateAI`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        if (apiRes.ok) {
+          const data = await apiRes.json() as any;
+          response = data.response || localResponse;
+        } else {
+          response = localResponse;
+        }
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        console.warn('External AI API failed or timed out, using fallback');
         response = localResponse;
       }
     }
