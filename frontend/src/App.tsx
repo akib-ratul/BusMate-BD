@@ -22,6 +22,7 @@ import PassengerTrips from './pages/passenger/PassengerTrips';
 import PassengerSafety from './pages/passenger/PassengerSafety';
 import PassengerLostFound from './pages/passenger/PassengerLostFound';
 import PassengerProfile from './pages/passenger/PassengerProfile';
+import PassengerFare from './pages/passenger/PassengerFare';
 
 // Driver Pages
 import DriverDashboard from './pages/driver/DriverDashboard';
@@ -76,6 +77,7 @@ function App() {
                 <Route path="/passenger/safety" element={<PassengerSafety />} />
                 <Route path="/passenger/lost-found" element={<PassengerLostFound />} />
                 <Route path="/passenger/profile" element={<PassengerProfile />} />
+                <Route path="/passenger/fare" element={<PassengerFare />} />
               </Route>
             </Route>
 
