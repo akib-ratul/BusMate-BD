@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,10 +6,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// =====================
-// ENUMS
-// =====================
 
 enum Role {
   PASSENGER
@@ -75,10 +68,6 @@ enum NotificationType {
   SYSTEM
 }
 
-// =====================
-// CORE USER MODELS
-// =====================
-
 model User {
   id           String   @id @default(uuid())
   name         String
@@ -118,19 +107,21 @@ model Passenger {
   @@index([userId])
 }
 
+// Driver owns the FK to Bus (busId lives on Driver)
 model Driver {
   id            String       @id @default(uuid())
   userId        String       @unique
   licenseNumber String       @unique
+  busId         String?      @unique
   currentLat    Float?
   currentLng    Float?
   status        DriverStatus @default(OFFLINE)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bus      Bus?      @relation("DriverBus")
-  ratings  Rating[]
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bus     Bus?     @relation("DriverBus", fields: [busId], references: [id])
+  ratings Rating[]
 
   @@index([userId])
   @@index([status])
@@ -152,16 +143,11 @@ model TransportOperator {
   @@index([userId])
 }
 
-// =====================
-// TRANSPORT MODELS
-// =====================
-
 model Bus {
   id          String    @id @default(uuid())
   name        String
   busNumber   String    @unique
   operatorId  String
-  driverId    String?   @unique
   capacity    Int       @default(50)
   currentLat  Float?
   currentLng  Float?
@@ -172,7 +158,7 @@ model Bus {
   updatedAt   DateTime  @updatedAt
 
   operator     TransportOperator @relation(fields: [operatorId], references: [id])
-  driver       Driver?           @relation("DriverBus", fields: [driverId], references: [id])
+  driver       Driver?           @relation("DriverBus")
   route        Route?            @relation(fields: [routeId], references: [id])
   crowdReports CrowdReport[]
   ratings      Rating[]
@@ -188,10 +174,10 @@ model Route {
   name              String
   startPoint        String
   endPoint          String
-  distance          Float    // in km
-  estimatedDuration Int      // in minutes
-  baseFare          Float    // in BDT
-  stops             Json     @default("[]") // [{name, lat, lng, order}]
+  distance          Float
+  estimatedDuration Int
+  baseFare          Float
+  stops             Json     @default("[]")
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -203,10 +189,6 @@ model Route {
   @@index([startPoint])
   @@index([endPoint])
 }
-
-// =====================
-// TRIP & CROWD
-// =====================
 
 model Trip {
   id          String     @id @default(uuid())
@@ -233,11 +215,11 @@ model Trip {
 }
 
 model CrowdReport {
-  id          String     @id @default(uuid())
-  busId       String
-  userId      String
-  level       CrowdLevel
-  reportedAt  DateTime   @default(now())
+  id         String     @id @default(uuid())
+  busId      String
+  userId     String
+  level      CrowdLevel
+  reportedAt DateTime   @default(now())
 
   bus  Bus  @relation(fields: [busId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id])
@@ -246,18 +228,14 @@ model CrowdReport {
   @@index([userId])
 }
 
-// =====================
-// SAFETY & COMMUNITY
-// =====================
-
 model Rating {
-  id          String   @id @default(uuid())
-  userId      String
-  busId       String?
-  driverId    String?
-  stars       Int      // 1-5
-  review      String?
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  userId    String
+  busId     String?
+  driverId  String?
+  stars     Int
+  review    String?
+  createdAt DateTime @default(now())
 
   user   User    @relation(fields: [userId], references: [id])
   bus    Bus?    @relation(fields: [busId], references: [id])
@@ -305,10 +283,6 @@ model LostFound {
   @@index([status])
   @@index([userId])
 }
-
-// =====================
-// SYSTEM
-// =====================
 
 model Notification {
   id        String           @id @default(uuid())

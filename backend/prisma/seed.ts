@@ -1,4 +1,4 @@
-import { PrismaClient, Role, BusStatus, DriverStatus, CrowdLevel, LostFoundType, NotificationType } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -6,22 +6,20 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding BusMate BD database...');
 
-  // Clear existing data
-  await prisma.$transaction([
-    prisma.notification.deleteMany(),
-    prisma.sosAlert.deleteMany(),
-    prisma.lostFound.deleteMany(),
-    prisma.rating.deleteMany(),
-    prisma.crowdReport.deleteMany(),
-    prisma.trip.deleteMany(),
-    prisma.bus.deleteMany(),
-    prisma.route.deleteMany(),
-    prisma.passenger.deleteMany(),
-    prisma.driver.deleteMany(),
-    prisma.transportOperator.deleteMany(),
-    prisma.systemSetting.deleteMany(),
-    prisma.user.deleteMany(),
-  ]);
+  // Clear existing data in correct dependency order
+  await prisma.notification.deleteMany();
+  await prisma.sosAlert.deleteMany();
+  await prisma.lostFound.deleteMany();
+  await prisma.rating.deleteMany();
+  await prisma.crowdReport.deleteMany();
+  await prisma.trip.deleteMany();
+  await prisma.driver.deleteMany();
+  await prisma.bus.deleteMany();
+  await prisma.route.deleteMany();
+  await prisma.passenger.deleteMany();
+  await prisma.transportOperator.deleteMany();
+  await prisma.systemSetting.deleteMany();
+  await prisma.user.deleteMany();
 
   const hash = await bcrypt.hash('Demo@2024!', 12);
 
@@ -31,14 +29,12 @@ async function main() {
   const adminUser = await prisma.user.create({
     data: { name: 'System Admin', email: 'admin@busmatebd.demo', phone: '01700000001', passwordHash: hash, role: 'ADMIN' },
   });
-
   const operatorUser = await prisma.user.create({
     data: { name: 'Rahim Transport', email: 'operator@busmatebd.demo', phone: '01700000002', passwordHash: hash, role: 'OPERATOR' },
   });
   const operatorUser2 = await prisma.user.create({
     data: { name: 'Dhaka Express Lines', email: 'operator2@busmatebd.demo', phone: '01700000007', passwordHash: hash, role: 'OPERATOR' },
   });
-
   const driverUser1 = await prisma.user.create({
     data: { name: 'Karim Uddin', email: 'driver@busmatebd.demo', phone: '01700000003', passwordHash: hash, role: 'DRIVER' },
   });
@@ -51,7 +47,6 @@ async function main() {
   const driverUser4 = await prisma.user.create({
     data: { name: 'Nizam Ali', email: 'driver4@busmatebd.demo', phone: '01700000008', passwordHash: hash, role: 'DRIVER' },
   });
-
   const passengerUser = await prisma.user.create({
     data: { name: 'Anika Rahman', email: 'passenger@busmatebd.demo', phone: '01700000006', passwordHash: hash, role: 'PASSENGER' },
   });
@@ -72,6 +67,7 @@ async function main() {
     data: { userId: operatorUser2.id, organizationName: 'Dhaka Express Lines Ltd.', contactEmail: 'operator2@busmatebd.demo', contactPhone: '01700000007', licenseNumber: 'OP-2024-002' },
   });
 
+  // Create drivers WITHOUT busId first (buses don't exist yet)
   const driver1 = await prisma.driver.create({ data: { userId: driverUser1.id, licenseNumber: 'DL-2024-101', status: 'ONLINE' } });
   const driver2 = await prisma.driver.create({ data: { userId: driverUser2.id, licenseNumber: 'DL-2024-102', status: 'OFFLINE' } });
   const driver3 = await prisma.driver.create({ data: { userId: driverUser3.id, licenseNumber: 'DL-2024-103', status: 'ONLINE' } });
@@ -86,12 +82,8 @@ async function main() {
   // =====================
   const route1 = await prisma.route.create({
     data: {
-      name: 'Mirpur–Farmgate Express',
-      startPoint: 'Mirpur 10',
-      endPoint: 'Farmgate',
-      distance: 10.5,
-      estimatedDuration: 45,
-      baseFare: 25,
+      name: 'Mirpur–Farmgate Express', startPoint: 'Mirpur 10', endPoint: 'Farmgate',
+      distance: 10.5, estimatedDuration: 45, baseFare: 25,
       stops: [
         { name: 'Mirpur 10', lat: 23.8041, lng: 90.3654, order: 1 },
         { name: 'Mirpur 1', lat: 23.7938, lng: 90.3606, order: 2 },
@@ -102,15 +94,10 @@ async function main() {
       ],
     },
   });
-
   const route2 = await prisma.route.create({
     data: {
-      name: 'Uttara–Motijheel Link',
-      startPoint: 'Uttara',
-      endPoint: 'Motijheel',
-      distance: 22.0,
-      estimatedDuration: 70,
-      baseFare: 50,
+      name: 'Uttara–Motijheel Link', startPoint: 'Uttara', endPoint: 'Motijheel',
+      distance: 22.0, estimatedDuration: 70, baseFare: 50,
       stops: [
         { name: 'Uttara Sector 10', lat: 23.8759, lng: 90.3795, order: 1 },
         { name: 'Airport Road', lat: 23.8480, lng: 90.4036, order: 2 },
@@ -123,15 +110,10 @@ async function main() {
       ],
     },
   });
-
   const route3 = await prisma.route.create({
     data: {
-      name: 'Mohammadpur–Gulshan AC',
-      startPoint: 'Mohammadpur',
-      endPoint: 'Gulshan 2',
-      distance: 14.0,
-      estimatedDuration: 55,
-      baseFare: 35,
+      name: 'Mohammadpur–Gulshan AC', startPoint: 'Mohammadpur', endPoint: 'Gulshan 2',
+      distance: 14.0, estimatedDuration: 55, baseFare: 35,
       stops: [
         { name: 'Mohammadpur Bus Stand', lat: 23.7633, lng: 90.3556, order: 1 },
         { name: 'Asad Gate', lat: 23.7704, lng: 90.3700, order: 2 },
@@ -143,15 +125,10 @@ async function main() {
       ],
     },
   });
-
   const route4 = await prisma.route.create({
     data: {
-      name: 'Jatrabari–Motijheel Local',
-      startPoint: 'Jatrabari',
-      endPoint: 'Motijheel',
-      distance: 9.0,
-      estimatedDuration: 40,
-      baseFare: 20,
+      name: 'Jatrabari–Motijheel Local', startPoint: 'Jatrabari', endPoint: 'Motijheel',
+      distance: 9.0, estimatedDuration: 40, baseFare: 20,
       stops: [
         { name: 'Jatrabari', lat: 23.7073, lng: 90.4326, order: 1 },
         { name: 'Demra Road', lat: 23.7130, lng: 90.4270, order: 2 },
@@ -161,15 +138,10 @@ async function main() {
       ],
     },
   });
-
   const route5 = await prisma.route.create({
     data: {
-      name: 'Dhanmondi–Gulshan Direct',
-      startPoint: 'Dhanmondi 27',
-      endPoint: 'Gulshan 1',
-      distance: 8.5,
-      estimatedDuration: 35,
-      baseFare: 20,
+      name: 'Dhanmondi–Gulshan Direct', startPoint: 'Dhanmondi 27', endPoint: 'Gulshan 1',
+      distance: 8.5, estimatedDuration: 35, baseFare: 20,
       stops: [
         { name: 'Dhanmondi 27', lat: 23.7461, lng: 90.3742, order: 1 },
         { name: 'Dhanmondi 15', lat: 23.7503, lng: 90.3774, order: 2 },
@@ -180,15 +152,10 @@ async function main() {
       ],
     },
   });
-
   const route6 = await prisma.route.create({
     data: {
-      name: 'Bashundhara–Farmgate Express',
-      startPoint: 'Bashundhara',
-      endPoint: 'Farmgate',
-      distance: 13.0,
-      estimatedDuration: 50,
-      baseFare: 30,
+      name: 'Bashundhara–Farmgate Express', startPoint: 'Bashundhara', endPoint: 'Farmgate',
+      distance: 13.0, estimatedDuration: 50, baseFare: 30,
       stops: [
         { name: 'Bashundhara Gate', lat: 23.8147, lng: 90.4244, order: 1 },
         { name: 'Nadda', lat: 23.8027, lng: 90.4183, order: 2 },
@@ -201,90 +168,28 @@ async function main() {
   });
 
   // =====================
-  // BUSES
+  // BUSES (no driverId — FK is now on Driver)
   // =====================
   const bus1 = await prisma.bus.create({
-    data: {
-      name: 'Mirpur Express',
-      busNumber: 'DHA-01-1234',
-      operatorId: operator.id,
-      driverId: driver1.id,
-      capacity: 50,
-      routeId: route1.id,
-      status: 'ACTIVE',
-      currentLat: 23.7857,
-      currentLng: 90.3637,
-      lastUpdated: new Date(),
-    },
+    data: { name: 'Mirpur Express', busNumber: 'DHA-01-1234', operatorId: operator.id, capacity: 50, routeId: route1.id, status: 'ACTIVE', currentLat: 23.7857, currentLng: 90.3637, lastUpdated: new Date() },
   });
-
   const bus2 = await prisma.bus.create({
-    data: {
-      name: 'City Liner',
-      busNumber: 'DHA-02-5678',
-      operatorId: operator.id,
-      driverId: driver2.id,
-      capacity: 45,
-      routeId: route2.id,
-      status: 'ACTIVE',
-      currentLat: 23.8223,
-      currentLng: 90.3795,
-      lastUpdated: new Date(),
-    },
+    data: { name: 'City Liner', busNumber: 'DHA-02-5678', operatorId: operator.id, capacity: 45, routeId: route2.id, status: 'ACTIVE', currentLat: 23.8223, currentLng: 90.3795, lastUpdated: new Date() },
   });
-
   const bus3 = await prisma.bus.create({
-    data: {
-      name: 'Gulshan AC',
-      busNumber: 'DHA-03-9012',
-      operatorId: operator2.id,
-      driverId: driver3.id,
-      capacity: 40,
-      routeId: route3.id,
-      status: 'ACTIVE',
-      currentLat: 23.7633,
-      currentLng: 90.3600,
-      lastUpdated: new Date(),
-    },
+    data: { name: 'Gulshan AC', busNumber: 'DHA-03-9012', operatorId: operator2.id, capacity: 40, routeId: route3.id, status: 'ACTIVE', currentLat: 23.7633, currentLng: 90.3600, lastUpdated: new Date() },
   });
-
   const bus4 = await prisma.bus.create({
-    data: {
-      name: 'Jatrabari Local',
-      busNumber: 'DHA-04-3456',
-      operatorId: operator2.id,
-      driverId: driver4.id,
-      capacity: 55,
-      routeId: route4.id,
-      status: 'INACTIVE',
-      currentLat: null,
-      currentLng: null,
-    },
+    data: { name: 'Jatrabari Local', busNumber: 'DHA-04-3456', operatorId: operator2.id, capacity: 55, routeId: route4.id, status: 'INACTIVE' },
+  });
+  await prisma.bus.create({
+    data: { name: 'Dhanmondi Express', busNumber: 'DHA-05-7890', operatorId: operator.id, capacity: 50, routeId: route5.id, status: 'INACTIVE' },
+  });
+  await prisma.bus.create({
+    data: { name: 'Bashundhara Shuttle', busNumber: 'DHA-06-2345', operatorId: operator2.id, capacity: 45, routeId: route6.id, status: 'MAINTENANCE' },
   });
 
-  const bus5 = await prisma.bus.create({
-    data: {
-      name: 'Dhanmondi Express',
-      busNumber: 'DHA-05-7890',
-      operatorId: operator.id,
-      capacity: 50,
-      routeId: route5.id,
-      status: 'INACTIVE',
-    },
-  });
-
-  const bus6 = await prisma.bus.create({
-    data: {
-      name: 'Bashundhara Shuttle',
-      busNumber: 'DHA-06-2345',
-      operatorId: operator2.id,
-      capacity: 45,
-      routeId: route6.id,
-      status: 'MAINTENANCE',
-    },
-  });
-
-  // Update driver bus assignments
+  // Now update drivers WITH busId (FK lives on Driver side in this schema)
   await prisma.driver.update({ where: { id: driver1.id }, data: { busId: bus1.id } });
   await prisma.driver.update({ where: { id: driver2.id }, data: { busId: bus2.id } });
   await prisma.driver.update({ where: { id: driver3.id }, data: { busId: bus3.id } });
@@ -321,7 +226,7 @@ async function main() {
   await prisma.trip.createMany({
     data: [
       { passengerId: passenger1.id, userId: passengerUser.id, routeId: route1.id, busId: bus1.id, source: 'Mirpur 10', destination: 'Farmgate', fare: 25, status: 'COMPLETED', startedAt: new Date(Date.now() - 3 * 3600000), endedAt: new Date(Date.now() - 2 * 3600000) },
-      { passengerId: passenger1.id, userId: passengerUser.id, routeId: route3.id, busId: bus3.id, source: 'Mohammadpur', destination: 'Gulshan 2', fare: 35, status: 'COMPLETED', startedAt: new Date(Date.now() - 86400000), endedAt: new Date(Date.now() - 86400000 + 3600000) },
+      { passengerId: passenger1.id, userId: passengerUser.id, routeId: route3.id, busId: bus3.id, source: 'Mohammadpur', destination: 'Gulshan 2', fare: 35, status: 'COMPLETED', startedAt: new Date(Date.now() - 86400000), endedAt: new Date(Date.now() - 82800000) },
       { passengerId: passenger2.id, userId: passengerUser2.id, routeId: route2.id, busId: bus2.id, source: 'Uttara', destination: 'Motijheel', fare: 50, status: 'COMPLETED', startedAt: new Date(Date.now() - 7200000), endedAt: new Date(Date.now() - 5400000) },
       { passengerId: passenger3.id, userId: passengerUser3.id, routeId: route4.id, source: 'Jatrabari', destination: 'Motijheel', fare: 20, status: 'ACTIVE', startedAt: new Date() },
     ],
@@ -331,14 +236,7 @@ async function main() {
   // SOS ALERTS
   // =====================
   await prisma.sosAlert.create({
-    data: {
-      userId: passengerUser.id,
-      lat: 23.7857,
-      lng: 90.3637,
-      message: 'Feeling unsafe near Shewrapara. Need assistance.',
-      status: 'ACKNOWLEDGED',
-      resolvedBy: adminUser.id,
-    },
+    data: { userId: passengerUser.id, lat: 23.7857, lng: 90.3637, message: 'Feeling unsafe near Shewrapara. Need assistance.', status: 'ACKNOWLEDGED', resolvedBy: adminUser.id },
   });
 
   // =====================
@@ -346,7 +244,7 @@ async function main() {
   // =====================
   await prisma.lostFound.createMany({
     data: [
-      { userId: passengerUser.id, type: 'LOST', title: 'Black Leather Wallet', description: 'Lost my black leather wallet containing NID card and some cash on bus DHA-01-1234 near Farmgate.', location: 'Farmgate Bus Stop', date: new Date(Date.now() - 86400000), status: 'OPEN' },
+      { userId: passengerUser.id, type: 'LOST', title: 'Black Leather Wallet', description: 'Lost my wallet containing NID card and cash on bus DHA-01-1234 near Farmgate.', location: 'Farmgate Bus Stop', date: new Date(Date.now() - 86400000), status: 'OPEN' },
       { userId: passengerUser2.id, type: 'FOUND', title: 'Blue Umbrella', description: 'Found a blue folding umbrella on bus DHA-03-9012 on route to Gulshan.', location: 'Gulshan 1 Bus Stop', date: new Date(Date.now() - 3600000), status: 'OPEN' },
       { userId: passengerUser3.id, type: 'LOST', title: 'Samsung Galaxy Phone', description: 'Lost a Samsung Galaxy A54 with a red case on the Uttara-Motijheel route.', location: 'Banani Bus Stop', date: new Date(Date.now() - 172800000), status: 'MATCHED' },
     ],
@@ -381,6 +279,11 @@ async function main() {
   });
 
   console.log('✅ Seed complete!');
+  console.log('\n📋 Demo Credentials:');
+  console.log('  Admin:     admin@busmatebd.demo     / Demo@2024!');
+  console.log('  Operator:  operator@busmatebd.demo  / Demo@2024!');
+  console.log('  Driver:    driver@busmatebd.demo    / Demo@2024!');
+  console.log('  Passenger: passenger@busmatebd.demo / Demo@2024!');
 }
 
 main()
