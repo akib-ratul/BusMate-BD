@@ -1,0 +1,51 @@
+services:
+  # 1. PostgreSQL Database
+  - type: pserv
+    name: busmate-db
+    env: postgres
+    plan: free
+    region: singapore
+
+  # 2. Node.js Backend API
+  - type: web
+    name: busmate-backend
+    env: node
+    plan: free
+    region: singapore
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm run start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: busmate-db
+          property: connectionString
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        value: https://busmate-frontend.onrender.com
+      - key: AI_API_KEY
+        value: '' # Add your Gemini API key here in the Render dashboard
+
+  # 3. React Frontend (Static Site)
+  - type: web
+    name: busmate-frontend
+    env: static
+    plan: free
+    region: singapore
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://busmate-backend.onrender.com
+      - key: VITE_SOCKET_URL
+        value: https://busmate-backend.onrender.com
+      - key: VITE_APP_NAME
+        value: BusMate BD
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

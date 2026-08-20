@@ -1,0 +1,335 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================
+// ENUMS
+// =====================
+
+enum Role {
+  PASSENGER
+  DRIVER
+  OPERATOR
+  ADMIN
+}
+
+enum BusStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum DriverStatus {
+  ONLINE
+  OFFLINE
+  ON_TRIP
+}
+
+enum CrowdLevel {
+  LOW
+  MODERATE
+  HIGH
+  FULL
+}
+
+enum TripStatus {
+  SEARCHING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum SosStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum LostFoundType {
+  LOST
+  FOUND
+}
+
+enum LostFoundStatus {
+  OPEN
+  MATCHED
+  RETURNED
+  CLOSED
+}
+
+enum NotificationType {
+  ROUTE_UPDATE
+  BUS_UPDATE
+  CROWD
+  SOS
+  LOST_FOUND
+  ANNOUNCEMENT
+  SYSTEM
+}
+
+// =====================
+// CORE USER MODELS
+// =====================
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         Role     @default(PASSENGER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  passenger         Passenger?
+  driver            Driver?
+  transportOperator TransportOperator?
+  ratings           Rating[]
+  sosAlerts         SosAlert[]
+  lostFoundItems    LostFound[]
+  notifications     Notification[]
+  crowdReports      CrowdReport[]
+  trips             Trip[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Passenger {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  currentLat     Float?
+  currentLng     Float?
+  favoriteRoutes Json     @default("[]")
+  createdAt      DateTime @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trips Trip[]
+
+  @@index([userId])
+}
+
+model Driver {
+  id            String       @id @default(uuid())
+  userId        String       @unique
+  licenseNumber String       @unique
+  currentLat    Float?
+  currentLng    Float?
+  status        DriverStatus @default(OFFLINE)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bus      Bus?      @relation("DriverBus")
+  ratings  Rating[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model TransportOperator {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  organizationName String
+  contactEmail     String?
+  contactPhone     String?
+  licenseNumber    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  buses Bus[]
+
+  @@index([userId])
+}
+
+// =====================
+// TRANSPORT MODELS
+// =====================
+
+model Bus {
+  id          String    @id @default(uuid())
+  name        String
+  busNumber   String    @unique
+  operatorId  String
+  driverId    String?   @unique
+  capacity    Int       @default(50)
+  currentLat  Float?
+  currentLng  Float?
+  status      BusStatus @default(INACTIVE)
+  routeId     String?
+  lastUpdated DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  operator     TransportOperator @relation(fields: [operatorId], references: [id])
+  driver       Driver?           @relation("DriverBus", fields: [driverId], references: [id])
+  route        Route?            @relation(fields: [routeId], references: [id])
+  crowdReports CrowdReport[]
+  ratings      Rating[]
+  trips        Trip[]
+
+  @@index([operatorId])
+  @@index([routeId])
+  @@index([status])
+}
+
+model Route {
+  id                String   @id @default(uuid())
+  name              String
+  startPoint        String
+  endPoint          String
+  distance          Float    // in km
+  estimatedDuration Int      // in minutes
+  baseFare          Float    // in BDT
+  stops             Json     @default("[]") // [{name, lat, lng, order}]
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  buses Bus[]
+  trips Trip[]
+
+  @@index([isActive])
+  @@index([startPoint])
+  @@index([endPoint])
+}
+
+// =====================
+// TRIP & CROWD
+// =====================
+
+model Trip {
+  id          String     @id @default(uuid())
+  passengerId String
+  userId      String
+  routeId     String
+  busId       String?
+  source      String
+  destination String
+  fare        Float
+  status      TripStatus @default(ACTIVE)
+  startedAt   DateTime   @default(now())
+  endedAt     DateTime?
+
+  passenger Passenger @relation(fields: [passengerId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  route     Route     @relation(fields: [routeId], references: [id])
+  bus       Bus?      @relation(fields: [busId], references: [id])
+
+  @@index([passengerId])
+  @@index([userId])
+  @@index([routeId])
+  @@index([status])
+}
+
+model CrowdReport {
+  id          String     @id @default(uuid())
+  busId       String
+  userId      String
+  level       CrowdLevel
+  reportedAt  DateTime   @default(now())
+
+  bus  Bus  @relation(fields: [busId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([busId, reportedAt])
+  @@index([userId])
+}
+
+// =====================
+// SAFETY & COMMUNITY
+// =====================
+
+model Rating {
+  id          String   @id @default(uuid())
+  userId      String
+  busId       String?
+  driverId    String?
+  stars       Int      // 1-5
+  review      String?
+  createdAt   DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id])
+  bus    Bus?    @relation(fields: [busId], references: [id])
+  driver Driver? @relation(fields: [driverId], references: [id])
+
+  @@index([busId])
+  @@index([driverId])
+  @@index([userId])
+}
+
+model SosAlert {
+  id         String    @id @default(uuid())
+  userId     String
+  lat        Float?
+  lng        Float?
+  message    String?
+  status     SosStatus @default(ACTIVE)
+  resolvedBy String?
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([status])
+  @@index([userId])
+}
+
+model LostFound {
+  id          String          @id @default(uuid())
+  userId      String
+  type        LostFoundType
+  title       String
+  description String
+  imageUrl    String?
+  location    String
+  date        DateTime
+  status      LostFoundStatus @default(OPEN)
+  isApproved  Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([type])
+  @@index([status])
+  @@index([userId])
+}
+
+// =====================
+// SYSTEM
+// =====================
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId])
+}
+
+model SystemSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}
