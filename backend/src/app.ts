@@ -26,11 +26,16 @@ const app = express();
 // Security headers
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
-// CORS
-const allowedOrigins = config.clientUrl.split(',').map(o => o.trim());
+// CORS — accept localhost dev + any onrender.com subdomain + explicit CLIENT_URL
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || config.nodeEnv === 'development') {
+    if (
+      !origin ||
+      config.nodeEnv === 'development' ||
+      /^https?:\/\/localhost(:\d+)?$/.test(origin) ||
+      origin.endsWith('.onrender.com') ||
+      config.clientUrl.split(',').map(o => o.trim()).includes(origin)
+    ) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));

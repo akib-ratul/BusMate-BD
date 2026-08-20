@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 // Pages
 import Home from './pages/public/Home';
 import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 import PassengerDashboard from './pages/passenger/PassengerDashboard';
 import PassengerRoutes from './pages/passenger/PassengerRoutes';
 import PassengerMap from './pages/passenger/PassengerMap';
@@ -47,7 +48,7 @@ function App() {
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Placeholder title="Register Page" />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/routes" element={<PassengerRoutes />} />
               <Route path="/about" element={<Placeholder title="About Us" />} />
               <Route path="/lost-found" element={<Placeholder title="Public Lost & Found" />} />
