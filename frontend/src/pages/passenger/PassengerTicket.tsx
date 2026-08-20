@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Ticket, QrCode, Bus, MapPin, Clock, Download, ChevronRight, Loader } from 'lucide-react';
+import { Ticket, QrCode, Bus, MapPin, Clock, Download, ChevronRight, Loader, Info } from 'lucide-react';
 import api from '../../api';
 import { useAuth } from '../../context/AuthContext';
 
@@ -130,7 +130,7 @@ const PassengerTicket = () => {
                     <div className="bg-white p-2 border-2 border-gray-100 rounded-xl shadow-sm">
                       <QrCode className="h-24 w-24 text-gray-800" strokeWidth={1.5} />
                     </div>
-                    <p className="text-[10px] text-gray-400 mt-2 font-mono tracking-widest">{activeTrip.id.substring(0, 12).toUpperCase()}</p>
+                    <p className="text-[10px] text-gray-400 mt-2 font-mono tracking-widest">{activeTrip.id?.substring(0, 12).toUpperCase()}</p>
                   </div>
                 </div>
 
