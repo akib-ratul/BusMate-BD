@@ -123,17 +123,52 @@ export const chat = async (req: Request, res: Response) => {
   let response: string;
 
   try {
-    // 1. First, try our internal BusMate knowledge base for exact route/fare/crowd info
+    // 1. First, check our internal BusMate knowledge base for specific route/fare/crowd info
     const localResponse = await getRulesBasedResponse(message);
     
-    // If the local response isn't the default fallback message, it means it found specific bus data
     if (!localResponse.includes('I can help you find buses, check fares')) {
+      // Found specific bus data — return it directly
       response = localResponse;
+    } else if (config.groqApiKey) {
+      // 2. Use Groq's FREE LLaMA3 API for real conversational AI (free tier: 30 req/min)
+      try {
+        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${(config as any).groqApiKey}`,
+          },
+          body: JSON.stringify({
+            model: 'llama3-8b-8192',
+            messages: [
+              {
+                role: 'system',
+                content: `You are BusMate AI, a helpful assistant for Dhaka public bus transport in Bangladesh. 
+Answer questions about bus routes, transport in Dhaka, travel tips, and general conversation.
+Be friendly, concise (2-3 sentences max), and helpful. Use emojis occasionally.
+If asked about specific bus routes or fares, note that real-time data is available in the BusMate app.`
+              },
+              { role: 'user', content: message }
+            ],
+            max_tokens: 200,
+            temperature: 0.7,
+          }),
+        });
+
+        if (groqRes.ok) {
+          const data = await groqRes.json() as any;
+          response = data.choices?.[0]?.message?.content || localResponse;
+        } else {
+          console.warn('Groq API error:', groqRes.status);
+          response = localResponse;
+        }
+      } catch (groqError) {
+        console.warn('Groq fetch failed, using local fallback');
+        response = localResponse;
+      }
     } else {
-      // 2. Fallback to a fast, reliable simulated conversational AI 
-      // This guarantees perfect uptime and no timeouts!
+      // 3. No API key — use enriched local conversational engine
       const lowerMsg = message.toLowerCase();
-      
       let conversationalResponse = 'I am a free AI assistant! Ask me about buses, routes, fares, or just chat with me!';
       
       if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {

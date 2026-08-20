@@ -9,6 +9,7 @@ export const config = {
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   databaseUrl: process.env.DATABASE_URL || '',
   aiApiKey: process.env.AI_API_KEY || '',
+  groqApiKey: process.env.GROQ_API_KEY || '',
   uploadMaxSize: parseInt(process.env.UPLOAD_MAX_SIZE || '5242880', 10), // 5MB
   rateLimitWindowMs: 15 * 60 * 1000, // 15 min
   rateLimitMax: 100,
