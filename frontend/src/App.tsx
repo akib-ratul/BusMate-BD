@@ -8,20 +8,40 @@ import PublicLayout from './layouts/PublicLayout';
 import MainLayout from './layouts/MainLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Pages
+// Public / Auth Pages
 import Home from './pages/public/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+
+// Passenger Pages
 import PassengerDashboard from './pages/passenger/PassengerDashboard';
 import PassengerRoutes from './pages/passenger/PassengerRoutes';
 import PassengerMap from './pages/passenger/PassengerMap';
 import PassengerAiAssistant from './pages/passenger/PassengerAiAssistant';
+import PassengerTrips from './pages/passenger/PassengerTrips';
+import PassengerSafety from './pages/passenger/PassengerSafety';
+import PassengerLostFound from './pages/passenger/PassengerLostFound';
+import PassengerProfile from './pages/passenger/PassengerProfile';
+
+// Driver Pages
 import DriverDashboard from './pages/driver/DriverDashboard';
+import DriverTracking from './pages/driver/DriverTracking';
+import DriverBus from './pages/driver/DriverBus';
+
+// Operator Pages
 import OperatorDashboard from './pages/operator/OperatorDashboard';
+import OperatorBuses from './pages/operator/OperatorBuses';
+import OperatorAnalytics from './pages/operator/OperatorAnalytics';
+
+// Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminRoutes from './pages/admin/AdminRoutes';
+import AdminBuses from './pages/admin/AdminBuses';
+import AdminSos from './pages/admin/AdminSos';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminSystem from './pages/admin/AdminSystem';
 
-
-// Create a query client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -30,13 +50,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-// Temporary placeholder component
-const Placeholder = ({ title }: { title: string }) => (
-  <div className="flex items-center justify-center h-full min-h-[400px]">
-    <h1 className="text-2xl font-bold text-gray-400">{title}</h1>
-  </div>
-);
 
 function App() {
   return (
@@ -50,8 +63,6 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/routes" element={<PassengerRoutes />} />
-              <Route path="/about" element={<Placeholder title="About Us" />} />
-              <Route path="/lost-found" element={<Placeholder title="Public Lost & Found" />} />
             </Route>
 
             {/* Passenger Routes */}
@@ -61,10 +72,10 @@ function App() {
                 <Route path="/passenger/routes" element={<PassengerRoutes />} />
                 <Route path="/passenger/map" element={<PassengerMap />} />
                 <Route path="/passenger/ai-assistant" element={<PassengerAiAssistant />} />
-                <Route path="/passenger/trips" element={<Placeholder title="My Trips" />} />
-                <Route path="/passenger/safety" element={<Placeholder title="SOS Safety" />} />
-                <Route path="/passenger/lost-found" element={<Placeholder title="Lost & Found" />} />
-                <Route path="/passenger/profile" element={<Placeholder title="Profile" />} />
+                <Route path="/passenger/trips" element={<PassengerTrips />} />
+                <Route path="/passenger/safety" element={<PassengerSafety />} />
+                <Route path="/passenger/lost-found" element={<PassengerLostFound />} />
+                <Route path="/passenger/profile" element={<PassengerProfile />} />
               </Route>
             </Route>
 
@@ -72,9 +83,9 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={['DRIVER']} />}>
               <Route element={<MainLayout />}>
                 <Route path="/driver/dashboard" element={<DriverDashboard />} />
-                <Route path="/driver/tracking" element={<Placeholder title="Live Tracking" />} />
-                <Route path="/driver/bus" element={<Placeholder title="My Bus" />} />
-                <Route path="/driver/profile" element={<Placeholder title="Profile" />} />
+                <Route path="/driver/tracking" element={<DriverTracking />} />
+                <Route path="/driver/bus" element={<DriverBus />} />
+                <Route path="/driver/profile" element={<PassengerProfile />} />
               </Route>
             </Route>
 
@@ -82,9 +93,9 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={['OPERATOR']} />}>
               <Route element={<MainLayout />}>
                 <Route path="/operator/dashboard" element={<OperatorDashboard />} />
-                <Route path="/operator/buses" element={<Placeholder title="Fleet Management" />} />
-                <Route path="/operator/analytics" element={<Placeholder title="Analytics" />} />
-                <Route path="/operator/profile" element={<Placeholder title="Profile" />} />
+                <Route path="/operator/buses" element={<OperatorBuses />} />
+                <Route path="/operator/analytics" element={<OperatorAnalytics />} />
+                <Route path="/operator/profile" element={<PassengerProfile />} />
               </Route>
             </Route>
 
@@ -92,13 +103,13 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
               <Route element={<MainLayout />}>
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/users" element={<Placeholder title="User Management" />} />
-                <Route path="/admin/routes" element={<Placeholder title="Route Management" />} />
-                <Route path="/admin/buses" element={<Placeholder title="Bus Management" />} />
-                <Route path="/admin/sos" element={<Placeholder title="SOS Alerts" />} />
-                <Route path="/admin/analytics" element={<Placeholder title="System Analytics" />} />
-                <Route path="/admin/system" element={<Placeholder title="System Settings" />} />
-                <Route path="/admin/profile" element={<Placeholder title="Profile" />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/routes" element={<AdminRoutes />} />
+                <Route path="/admin/buses" element={<AdminBuses />} />
+                <Route path="/admin/sos" element={<AdminSos />} />
+                <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                <Route path="/admin/system" element={<AdminSystem />} />
+                <Route path="/admin/profile" element={<PassengerProfile />} />
               </Route>
             </Route>
 
