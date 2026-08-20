@@ -12,6 +12,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/public/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import About from './pages/public/About';
+import LostFoundPublic from './pages/public/LostFoundPublic';
 
 // Passenger Pages
 import PassengerDashboard from './pages/passenger/PassengerDashboard';
@@ -65,6 +67,8 @@ function App() {
             {/* Public Routes */}
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/lost-found" element={<LostFoundPublic />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/routes" element={<PassengerRoutes />} />
