@@ -12,7 +12,7 @@ services:
     plan: free
     region: singapore
     buildCommand: cd backend && npm install --production=false && npm run build
-    releaseCommand: cd backend && npm run db:deploy
+    releaseCommand: cd backend && npx prisma generate && npx prisma db push && npx tsx prisma/seed.ts
     startCommand: cd backend && npm run start
     envVars:
       - key: DATABASE_URL
@@ -29,6 +29,8 @@ services:
         value: https://busmate-frontend.onrender.com
       - key: AI_API_KEY
         value: '' # Add your Gemini API key here in the Render dashboard
+      - key: GROQ_API_KEY
+        value: '' # Add your Groq API key here for real AI responses
 
   # 3. React Frontend (Static Site)
   - type: web
