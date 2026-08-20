@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createSos, getSosAlerts, updateSos } from '../controllers/sos.controller';
+import { createSos, getSosAlerts, updateSos, getMySos } from '../controllers/sos.controller';
 import { authenticate, requireRole } from '../middleware/auth';
 
 const router = Router();
