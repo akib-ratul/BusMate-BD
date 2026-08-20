@@ -1,11 +1,10 @@
-services:
+databases:
   # 1. PostgreSQL Database
-  - type: pserv
-    name: busmate-db
-    env: postgres
+  - name: busmate-db
     plan: free
     region: singapore
 
+services:
   # 2. Node.js Backend API
   - type: web
     name: busmate-backend
@@ -35,7 +34,6 @@ services:
     name: busmate-frontend
     env: static
     plan: free
-    region: singapore
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     envVars:
